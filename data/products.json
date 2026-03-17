@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "Premium Wireless Headphones",
+    "price": 12000,
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 2,
+    "name": "Titanium Smart Watch",
+    "price": 25000,
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 3,
+    "name": "Urban Running Sneakers",
+    "price": 8500,
+    "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 4,
+    "name": "Pro DSLR Camera",
+    "price": 145000,
+    "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 5,
+    "name": "Vintage Leather Backpack",
+    "price": 9500,
+    "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 6,
+    "name": "Classic Designer Sunglasses",
+    "price": 4200,
+    "image": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&h=400&fit=crop"
+  }
+]

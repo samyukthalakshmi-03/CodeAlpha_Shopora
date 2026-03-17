@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Shopora</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <h2 onclick="window.location.href='/'">Shopora</h2>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/cart.html">Cart <span id="cartCount"></span></a>
+      <a href="/login.html">Login</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main class="container" style="display:flex; align-items:center; justify-content:center;">
+    <div class="form-container" style="width: 100%;">
+      <h2>Create Account</h2>
+      
+      <form id="registerForm">
+        <div class="form-group">
+          <input type="text" id="name" placeholder="Full Name" required>
+        </div>
+        <div class="form-group">
+          <input type="email" id="email" placeholder="Email Address" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="password" placeholder="Password" required>
+        </div>
+        <button type="submit" class="btn-primary">Sign Up</button>
+      </form>
+      
+      <p id="message"></p>
+      
+      <p style="text-align:center; margin-top:2rem; color: var(--text-muted);">
+        Already have an account? <a href="/login.html" style="color: var(--primary-color); text-decoration: none;">Login here</a>
+      </p>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>&copy; 2026 Shopora | Crafted with Precision</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
