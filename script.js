@@ -1,32 +1,74 @@
+// Fallback Products Array (used when API is not available)
+const FALLBACK_PRODUCTS = [
+  {
+    "id": 1,
+    "name": "Premium Wireless Headphones",
+    "price": 12000,
+    "image": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 2,
+    "name": "Titanium Smart Watch",
+    "price": 25000,
+    "image": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 3,
+    "name": "Urban Running Sneakers",
+    "price": 8500,
+    "image": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 4,
+    "name": "Pro DSLR Camera",
+    "price": 145000,
+    "image": "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 5,
+    "name": "Vintage Leather Backpack",
+    "price": 9500,
+    "image": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600&h=400&fit=crop"
+  },
+  {
+    "id": 6,
+    "name": "Classic Designer Sunglasses",
+    "price": 4200,
+    "image": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=600&h=400&fit=crop"
+  }
+];
+
 // Global Products Array
 let products = [];
 
 // API Base URL
 const API_BASE = 'http://localhost:3000';
 
-// Fetch products from server
+// Fetch products from server with fallback
 async function fetchProducts() {
   try {
-    const response = await fetch(`${API_BASE}/products`);
+    const response = await fetch(`${API_BASE}/products`, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) throw new Error('Failed to fetch products');
     products = await response.json();
+    console.log('Products loaded from API');
     return products;
   } catch (error) {
-    console.error('Error fetching products:', error);
-    showToast('Failed to load products. Please refresh the page.', 'error');
-    return [];
+    console.warn('API not available, using fallback products:', error);
+    products = FALLBACK_PRODUCTS;
+    return products;
   }
 }
 
-// Cart Helper Functions using backend API
+// Cart Helper Functions using backend API with localStorage fallback
 async function getCart() {
   try {
-    const response = await fetch(`${API_BASE}/cart`);
+    const response = await fetch(`${API_BASE}/cart`, { signal: AbortSignal.timeout(5000) });
     if (!response.ok) throw new Error('Failed to fetch cart');
     return await response.json();
   } catch (error) {
-    console.error('Error fetching cart:', error);
-    return [];
+    console.warn('Using localStorage for cart:', error);
+    const cart = localStorage.getItem('cart');
+    return cart ? JSON.parse(cart) : [];
   }
 }
 
@@ -35,39 +77,54 @@ async function addToCartAPI(product) {
     const response = await fetch(`${API_BASE}/cart`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(product)
+      body: JSON.stringify(product),
+      signal: AbortSignal.timeout(5000)
     });
     if (!response.ok) throw new Error('Failed to add to cart');
     return await response.json();
   } catch (error) {
-    console.error('Error adding to cart:', error);
-    throw error;
+    console.warn('Adding to localStorage cart:', error);
+    const cart = await getCart();
+    cart.push(product);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    return { message: "Product added to cart", cart };
   }
 }
 
 async function removeFromCartAPI(id) {
   try {
     const response = await fetch(`${API_BASE}/cart/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      signal: AbortSignal.timeout(5000)
     });
     if (!response.ok) throw new Error('Failed to remove from cart');
     return await response.json();
   } catch (error) {
-    console.error('Error removing from cart:', error);
-    throw error;
+    console.warn('Removing from localStorage cart:', error);
+    const cart = await getCart();
+    const index = cart.findIndex(item => item.id === id);
+    if (index !== -1) {
+      cart.splice(index, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      return { message: "Item removed from cart", cart };
+    } else {
+      throw new Error("Item not found");
+    }
   }
 }
 
 async function clearCartAPI() {
   try {
     const response = await fetch(`${API_BASE}/cart`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      signal: AbortSignal.timeout(5000)
     });
     if (!response.ok) throw new Error('Failed to clear cart');
     return await response.json();
   } catch (error) {
-    console.error('Error clearing cart:', error);
-    throw error;
+    console.warn('Clearing localStorage cart:', error);
+    localStorage.setItem('cart', JSON.stringify([]));
+    return { message: "Cart cleared" };
   }
 }
 
@@ -217,7 +274,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`${API_BASE}/users/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify({ email, password }),
+          signal: AbortSignal.timeout(5000)
         });
 
         if (response.ok) {
@@ -230,8 +288,17 @@ document.addEventListener('DOMContentLoaded', async () => {
           showToast("Invalid credentials", "error");
         }
       } catch (error) {
-        console.error('Login error:', error);
-        showToast("Login failed. Please try again.", "error");
+        console.warn('Login error, proceeding with mock login:', error);
+        // Mock login as fallback
+        if (email && password) {
+          showToast("Login Successful!", "success");
+          localStorage.setItem('user', JSON.stringify({ email }));
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1000);
+        } else {
+          showToast("Invalid credentials", "error");
+        }
       }
     });
   }
@@ -247,7 +314,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await fetch(`${API_BASE}/users/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, email, password })
+          body: JSON.stringify({ name, email, password }),
+          signal: AbortSignal.timeout(5000)
         });
 
         if (response.ok) {
@@ -260,8 +328,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           showToast(data.message || "Registration failed", "error");
         }
       } catch (error) {
-        console.error('Registration error:', error);
-        showToast("Registration failed. Please try again.", "error");
+        console.warn('Registration error, proceeding with mock registration:', error);
+        // Mock registration as fallback
+        if (name && email && password) {
+          showToast("Registration Successful! Please login.", "success");
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 1500);
+        } else {
+          showToast("Registration failed. Please fill all fields.", "error");
+        }
       }
     });
   }
@@ -283,6 +359,7 @@ window.addToCart = async function (id) {
     showToast(`${product.name} added to cart!`, "success");
     await updateCartCount();
   } catch (error) {
+    console.error('Error:', error);
     showToast("Failed to add product to cart.", "error");
   }
 }
@@ -295,6 +372,7 @@ window.removeFromCart = async function (id) {
       window.location.reload();
     }, 500);
   } catch (error) {
+    console.error('Error:', error);
     showToast("Could not remove item.", "error");
   }
 }
@@ -313,6 +391,7 @@ window.placeOrder = async function () {
       window.location.href = 'index.html';
     }, 1500);
   } catch (error) {
+    console.error('Error:', error);
     showToast("Failed to place order.", "error");
   }
 }
