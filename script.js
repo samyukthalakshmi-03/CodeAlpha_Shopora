@@ -47,7 +47,12 @@ const API_BASE = 'http://localhost:3000';
 // Fetch products from server with fallback
 async function fetchProducts() {
   try {
-    const response = await fetch(`${API_BASE}/products`, { signal: AbortSignal.timeout(5000) });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(`${API_BASE}/products`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
     if (!response.ok) throw new Error('Failed to fetch products');
     products = await response.json();
     console.log('Products loaded from API');
@@ -62,7 +67,12 @@ async function fetchProducts() {
 // Cart Helper Functions using backend API with localStorage fallback
 async function getCart() {
   try {
-    const response = await fetch(`${API_BASE}/cart`, { signal: AbortSignal.timeout(5000) });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
+    const response = await fetch(`${API_BASE}/cart`, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    
     if (!response.ok) throw new Error('Failed to fetch cart');
     return await response.json();
   } catch (error) {
@@ -74,12 +84,17 @@ async function getCart() {
 
 async function addToCartAPI(product) {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
     const response = await fetch(`${API_BASE}/cart`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(product),
-      signal: AbortSignal.timeout(5000)
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
+    
     if (!response.ok) throw new Error('Failed to add to cart');
     return await response.json();
   } catch (error) {
@@ -93,10 +108,15 @@ async function addToCartAPI(product) {
 
 async function removeFromCartAPI(id) {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
     const response = await fetch(`${API_BASE}/cart/${id}`, {
       method: 'DELETE',
-      signal: AbortSignal.timeout(5000)
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
+    
     if (!response.ok) throw new Error('Failed to remove from cart');
     return await response.json();
   } catch (error) {
@@ -115,10 +135,15 @@ async function removeFromCartAPI(id) {
 
 async function clearCartAPI() {
   try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+    
     const response = await fetch(`${API_BASE}/cart`, {
       method: 'DELETE',
-      signal: AbortSignal.timeout(5000)
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
+    
     if (!response.ok) throw new Error('Failed to clear cart');
     return await response.json();
   } catch (error) {
@@ -271,12 +296,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const password = document.getElementById('password').value;
 
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         const response = await fetch(`${API_BASE}/users/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
-          signal: AbortSignal.timeout(5000)
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           showToast("Login Successful!", "success");
@@ -311,12 +340,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       const password = document.getElementById('password').value;
 
       try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         const response = await fetch(`${API_BASE}/users/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, password }),
-          signal: AbortSignal.timeout(5000)
+          signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (response.ok) {
           showToast("Registration Successful! Please login.", "success");
